@@ -1,5 +1,32 @@
 @import "tailwindcss";
 
+/* Design System: Apple Pro Minimalist with Glass Accents */
+
+/* --- Color Palette --- */
+:root {
+  --bg-pure: #000000;
+  --bg-base: #1C1C1E;
+  --surface-elevated: #2C2C2E;
+  --surface-border: #3A3A3C;
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --text-tertiary: rgba(255, 255, 255, 0.3);
+  --accent: #0A84FF;
+  --glass-base: rgba(255, 255, 255, 0.06);
+  --glass-hover: rgba(255, 255, 255, 0.12);
+  --glass-active: rgba(255, 255, 255, 0.08);
+}
+
+/* --- Typography --- */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, Arial, sans-serif;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* --- Scrollbar Hiding --- */
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -8,15 +35,171 @@
   scrollbar-width: none;
 }
 
-@keyframes spin-slow {
+/* --- Glass Effect --- */
+.glass {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* --- Typography Utilities --- */
+.text-username {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  letter-spacing: -0.01em;
+}
+
+.text-summary {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-weight: 400;
+  font-size: 15px;
+  line-height: 1.47;
+  letter-spacing: -0.01em;
+}
+
+.text-label {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", sans-serif;
+  font-weight: 500;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.text-title-light {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  font-weight: 700;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+}
+
+.text-hero {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif;
+  font-weight: 700;
+  font-size: 34px;
+  letter-spacing: -0.02em;
+}
+
+/* --- Spring Animation Easing --- */
+.spring-ease {
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- Animations --- */
+
+/* Fade in with scale for checkmark */
+@keyframes fade-scale-in {
   from {
-    transform: rotate(0deg);
+    opacity: 0;
+    transform: scale(0.8);
   }
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: scale(1);
   }
 }
 
-.animate-spin-slow {
-  animation: spin-slow 4s linear infinite;
+.animate-fade-scale-in {
+  animation: fade-scale-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Staggered fade in for text */
+@keyframes stagger-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-stagger {
+  animation: stagger-fade-in 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.stagger-1 { animation-delay: 150ms; }
+.stagger-2 { animation-delay: 300ms; }
+.stagger-3 { animation-delay: 450ms; }
+
+/* Slide up panel animation */
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-down {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(100%);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+/* Pulsing ring animation (replaces spinning disc) */
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s ease-in-out infinite;
+}
+
+/* Auto-hide animation */
+@keyframes fade-out {
+  to {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+.animate-auto-hide {
+  animation: fade-out 0.3s ease-out forwards;
+  animation-delay: 3s;
+}
+
+/* Gentle scale effects */
+.hover-scale {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+.hover-scale:active {
+  transform: scale(0.98);
+}
+
+/* Radial gradient for landing */
+.bg-radial-center {
+  background: radial-gradient(ellipse at center, rgba(44, 44, 46, 0.5) 0%, #1C1C1E 70%);
 }

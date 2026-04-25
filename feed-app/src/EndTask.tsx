@@ -20,7 +20,7 @@ export default function EndTask() {
 
         <div className="opacity-0 animate-stagger stagger-3">
           <a
-            href="https://forms.gle/EDMiRyZpxECRoe7TA"
+            href="https://rug.eu.qualtrics.com/jfe/form/SV_eQJKg0fSH6l8AJg"
             target="_blank"
             rel="noopener noreferrer"
             className="glass glass-hover hover-scale inline-flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium transition-all duration-200"

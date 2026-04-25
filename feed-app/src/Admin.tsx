@@ -4,6 +4,7 @@ import AnimatedBackground from './AnimatedBackground';
 interface AdminSettings {
   activeFeed: 'A' | 'B';
   feedName: string;
+  timerMinutes: number;
 }
 
 const STORAGE_KEY = 'feed-admin-settings';
@@ -14,7 +15,7 @@ function getSettings(): AdminSettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  return { activeFeed: 'A', feedName: '' };
+  return { activeFeed: 'A', feedName: '', timerMinutes: 10 };
 }
 
 function saveSettings(settings: AdminSettings) {
@@ -117,6 +118,25 @@ export default function Admin() {
             className="w-full py-3 px-4 rounded-xl glass text-white placeholder:text-white/30 outline-none"
             style={{ fontSize: 15 }}
           />
+        </div>
+
+        {/* Timer duration */}
+        <div className="glass rounded-2xl p-5">
+          <label className="text-label block mb-3" style={{ color: 'var(--text-secondary)' }}>
+            Timer Duration (minutes)
+          </label>
+          <input
+            type="number"
+            min={1}
+            max={60}
+            value={settings.timerMinutes}
+            onChange={(e) => setSettings(s => ({ ...s, timerMinutes: Math.max(1, parseInt(e.target.value) || 1) }))}
+            className="w-full py-3 px-4 rounded-xl glass text-white outline-none"
+            style={{ fontSize: 15 }}
+          />
+          <p className="text-label mt-2" style={{ color: 'var(--text-tertiary)', fontSize: 12 }}>
+            Participants are redirected to the survey when time expires.
+          </p>
         </div>
 
         {/* Save */}

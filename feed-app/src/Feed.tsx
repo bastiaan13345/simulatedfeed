@@ -3,7 +3,7 @@ import Papa from 'papaparse';
 import { useNavigate } from 'react-router-dom';
 import YouTube from 'react-youtube';
 import type { YouTubeProps } from 'react-youtube';
-import { Heart, MessageCircle, Share2, Music, ChevronDown, X } from 'lucide-react';
+import { Heart, MessageCircle, Share2, Music, ChevronDown, X, Timer, ExternalLink } from 'lucide-react';
 
 interface FeedProps {
   condition: 'A' | 'B';
@@ -15,6 +15,12 @@ interface VideoData {
   summary: string;
   bcaScore: number;
   url: string;
+}
+
+interface AdminSettings {
+  activeFeed: 'A' | 'B';
+  feedName: string;
+  timerMinutes: number;
 }
 
 const VideoPlayer = ({ video, isActive }: { video: VideoData; isActive: boolean }) => {
@@ -139,7 +145,7 @@ const VideoPlayer = ({ video, isActive }: { video: VideoData; isActive: boolean 
       {!expanded && (
         <div
           data-overlay
-          className="absolute left-4 bottom-6 right-20 z-10 cursor-pointer"
+          className="absolute left-4 bottom-16 right-20 z-10 cursor-pointer"
           onClick={(e) => {
             e.stopPropagation();
             setExpanded(true);
@@ -210,9 +216,50 @@ export default function Feed({ condition }: FeedProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [showFinishBtn, setShowFinishBtn] = useState(true);
   const [finishBtnVisible, setFinishBtnVisible] = useState(true);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [showPopup, setShowPopup] = useState(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
+
+  // Load timer setting from admin
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('feed-admin-settings');
+      if (raw) {
+        const settings: AdminSettings = JSON.parse(raw);
+        if (settings.timerMinutes) {
+          setTimeLeft(settings.timerMinutes * 60);
+        }
+      } else {
+        // Default 10 minutes if no settings found
+        setTimeLeft(10 * 60);
+      }
+    } catch (e) {
+      setTimeLeft(10 * 60);
+    }
+  }, []);
+
+  // Timer countdown
+  useEffect(() => {
+    if (timeLeft === null || timeLeft <= 0) {
+      if (timeLeft === 0) setShowPopup(true);
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setTimeLeft(prev => (prev !== null && prev > 0 ? prev - 1 : 0));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   // Auto-hide finish button after 3 seconds of no interaction
   const resetHideTimer = useCallback(() => {
@@ -306,6 +353,40 @@ export default function Feed({ condition }: FeedProps) {
         >
           Finish Task
         </button>
+      )}
+
+      {/* Bottom Timer */}
+      {timeLeft !== null && timeLeft > 0 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 glass px-4 py-1.5 rounded-full flex items-center gap-2 pointer-events-none transition-all duration-300">
+          <Timer className="w-3.5 h-3.5 text-white/40" />
+          <span className="text-[13px] font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.6)' }}>
+            {formatTime(timeLeft)}
+          </span>
+        </div>
+      )}
+
+      {/* Time's Up Popup */}
+      {showPopup && (
+        <div className="absolute inset-0 z-[100] flex items-center justify-center p-6" style={{ background: 'rgba(0,0,0,0.85)', backdropFilter: 'blur(10px)' }}>
+          <div className="glass w-full max-w-sm rounded-[32px] p-8 flex flex-col items-center text-center animate-fade-scale-in">
+            <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mb-6">
+              <Timer className="w-8 h-8 text-white/60" />
+            </div>
+
+            <h2 className="text-2xl font-semibold text-white mb-2">Time's Up!</h2>
+            <p className="text-white/40 mb-8 leading-relaxed">
+              You've completed the allocated time for this part of the study. Please proceed to the STAI-Y1 survey.
+            </p>
+
+            <button
+              onClick={() => navigate('/end')}
+              className="w-full glass glass-hover hover-scale py-4 rounded-2xl flex items-center justify-center gap-2 text-white font-medium transition-all"
+            >
+              Go to Survey
+              <ExternalLink className="w-4 h-4 opacity-40" />
+            </button>
+          </div>
+        </div>
       )}
 
       {/* Main Feed Container */}

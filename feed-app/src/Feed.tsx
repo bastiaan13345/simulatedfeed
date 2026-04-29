@@ -21,6 +21,8 @@ interface AdminSettings {
   activeFeed: 'A' | 'B';
   feedName: string;
   timerMinutes: number;
+  showConditionA?: boolean;
+  showConditionB?: boolean;
 }
 
 const VideoPlayer = ({ video, isActive }: { video: VideoData; isActive: boolean }) => {
@@ -233,11 +235,11 @@ export default function Feed({ condition }: FeedProps) {
           setTimeLeft(settings.timerMinutes * 60);
         }
       } else {
-        // Default 10 minutes if no settings found
-        setTimeLeft(10 * 60);
+        // Default 5 minutes if no settings found
+        setTimeLeft(5 * 60);
       }
     } catch (e) {
-      setTimeLeft(10 * 60);
+      setTimeLeft(5 * 60);
     }
   }, []);
 

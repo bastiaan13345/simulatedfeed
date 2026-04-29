@@ -5,6 +5,8 @@ interface AdminSettings {
   activeFeed: 'A' | 'B';
   feedName: string;
   timerMinutes: number;
+  showConditionA?: boolean;
+  showConditionB?: boolean;
 }
 
 const STORAGE_KEY = 'feed-admin-settings';
@@ -15,7 +17,7 @@ function getSettings(): AdminSettings {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) return JSON.parse(raw);
   } catch {}
-  return { activeFeed: 'A', feedName: '', timerMinutes: 10 };
+  return { activeFeed: 'A', feedName: '', timerMinutes: 5 };
 }
 
 function saveSettings(settings: AdminSettings) {
@@ -140,6 +142,33 @@ export default function Admin() {
         </div>
 
         {/* Save */}
+        {/* Condition Toggles */}
+        <div className="bg-black/20 rounded-2xl p-6 border border-white/5">
+          <label className="block text-label text-white/50 mb-4">
+            Visible Conditions (Fallback View)
+          </label>
+          <div className="space-y-4">
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-white">Show Condition A</span>
+              <input
+                type="checkbox"
+                className="w-5 h-5 accent-white rounded"
+                checked={settings.showConditionA !== false}
+                onChange={(e) => setSettings(s => ({ ...s, showConditionA: e.target.checked }))}
+              />
+            </label>
+            <label className="flex items-center justify-between cursor-pointer">
+              <span className="text-white">Show Condition B</span>
+              <input
+                type="checkbox"
+                className="w-5 h-5 accent-white rounded"
+                checked={settings.showConditionB !== false}
+                onChange={(e) => setSettings(s => ({ ...s, showConditionB: e.target.checked }))}
+              />
+            </label>
+          </div>
+        </div>
+
         <button
           onClick={handleSave}
           className="w-full py-3 px-5 rounded-2xl glass glass-hover hover-scale text-white font-medium transition-all duration-200"

@@ -1,3 +1,4 @@
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Settings } from 'lucide-react';
 import AnimatedBackground from './AnimatedBackground';
@@ -5,6 +6,9 @@ import AnimatedBackground from './AnimatedBackground';
 interface AdminSettings {
   activeFeed: 'A' | 'B';
   feedName: string;
+  timerMinutes: number;
+  showConditionA?: boolean;
+  showConditionB?: boolean;
 }
 
 function getAdminSettings(): AdminSettings | null {
@@ -41,11 +45,14 @@ export default function Landing() {
           <div className="w-full opacity-0 animate-stagger stagger-3">
             <button
               onClick={() => navigate('/feed')}
-              className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200"
+              className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200 mb-6"
             >
               <span className="text-username">Enter Feed</span>
               <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
             </button>
+            <p className="text-center text-sm opacity-80" style={{ color: 'var(--text-secondary)' }}>
+              Instructions: Enter the feed. Scroll through the videos until the timer finishes, then proceed to the final survey.
+            </p>
           </div>
         </div>
 
@@ -88,21 +95,29 @@ export default function Landing() {
         />
 
         <div className="flex flex-col gap-3 w-full opacity-0 animate-stagger stagger-3">
-          <button
-            onClick={() => navigate('/feed/a')}
-            className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200"
-          >
-            <span className="text-username">Condition A</span>
-            <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
-          </button>
+          {settings?.showConditionA !== false && (
+            <button
+              onClick={() => navigate('/feed/a')}
+              className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200"
+            >
+              <span className="text-username">Condition A</span>
+              <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
+            </button>
+          )}
 
-          <button
-            onClick={() => navigate('/feed/b')}
-            className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200"
-          >
-            <span className="text-username">Condition B</span>
-            <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
-          </button>
+          {settings?.showConditionB !== false && (
+            <button
+              onClick={() => navigate('/feed/b')}
+              className="glass glass-hover hover-scale w-full py-4 px-6 rounded-[20px] flex items-center justify-between transition-all duration-200 mb-4"
+            >
+              <span className="text-username">Condition B</span>
+              <ChevronRight className="w-4 h-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
+            </button>
+          )}
+
+          <p className="text-center text-sm opacity-80" style={{ color: 'var(--text-secondary)' }}>
+            Instructions: Select your assigned condition. Scroll through the videos until the timer finishes, then proceed to the final survey.
+          </p>
         </div>
       </div>
 

@@ -1,4 +1,3 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Settings } from 'lucide-react';
 import AnimatedBackground from './AnimatedBackground';

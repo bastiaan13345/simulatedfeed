@@ -1,0 +1,7 @@
+services:
+  feed-app:
+    build:
+      context: ./feed-app
+    ports:
+      - "8080:80"
+    restart: unless-stopped

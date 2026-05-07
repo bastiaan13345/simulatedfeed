@@ -7,6 +7,7 @@ import { Heart, MessageCircle, Share2, Music, ChevronDown, X, Timer, ExternalLin
 
 interface FeedProps {
   condition: 'A' | 'B';
+  timerMinutes: number;
 }
 
 interface VideoData {
@@ -15,14 +16,6 @@ interface VideoData {
   summary: string;
   bcaScore: number;
   url: string;
-}
-
-interface AdminSettings {
-  activeFeed: 'A' | 'B';
-  feedName: string;
-  timerMinutes: number;
-  showConditionA?: boolean;
-  showConditionB?: boolean;
 }
 
 const VideoPlayer = ({ video, isActive }: { video: VideoData; isActive: boolean }) => {
@@ -213,40 +206,20 @@ const VideoPlayer = ({ video, isActive }: { video: VideoData; isActive: boolean 
   );
 };
 
-export default function Feed({ condition }: FeedProps) {
+export default function Feed({ condition, timerMinutes }: FeedProps) {
   const [videos, setVideos] = useState<VideoData[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [showFinishBtn, setShowFinishBtn] = useState(true);
   const [finishBtnVisible, setFinishBtnVisible] = useState(true);
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
-  const [showPopup, setShowPopup] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => timerMinutes * 60);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const navigate = useNavigate();
 
-  // Load timer setting from admin
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('feed-admin-settings');
-      if (raw) {
-        const settings: AdminSettings = JSON.parse(raw);
-        if (settings.timerMinutes) {
-          setTimeLeft(settings.timerMinutes * 60);
-        }
-      } else {
-        // Default 5 minutes if no settings found
-        setTimeLeft(5 * 60);
-      }
-    } catch (e) {
-      setTimeLeft(5 * 60);
-    }
-  }, []);
-
   // Timer countdown
   useEffect(() => {
-    if (timeLeft === null || timeLeft <= 0) {
-      if (timeLeft === 0) setShowPopup(true);
+    if (timeLeft <= 0) {
       return;
     }
 
@@ -264,10 +237,7 @@ export default function Feed({ condition }: FeedProps) {
   };
 
   // Auto-hide finish button after 3 seconds of no interaction
-  const resetHideTimer = useCallback(() => {
-    setFinishBtnVisible(true);
-    setShowFinishBtn(true);
-
+  const scheduleHideTimer = useCallback(() => {
     if (hideTimerRef.current) {
       clearTimeout(hideTimerRef.current);
     }
@@ -279,12 +249,18 @@ export default function Feed({ condition }: FeedProps) {
     }, 3000);
   }, []);
 
+  const resetHideTimer = useCallback(() => {
+    setFinishBtnVisible(true);
+    setShowFinishBtn(true);
+    scheduleHideTimer();
+  }, [scheduleHideTimer]);
+
   useEffect(() => {
-    resetHideTimer();
+    scheduleHideTimer();
     return () => {
       if (hideTimerRef.current) clearTimeout(hideTimerRef.current);
     };
-  }, [resetHideTimer]);
+  }, [scheduleHideTimer]);
 
   // Show button on any touch/click
   useEffect(() => {
@@ -344,6 +320,8 @@ export default function Feed({ condition }: FeedProps) {
     });
   };
 
+  const showPopup = timeLeft === 0;
+
   return (
     <div className="fixed inset-0 bg-black flex flex-col h-[100dvh] w-full overflow-hidden">
       {/* Floating Finish Task Pill - auto-hides */}
@@ -358,7 +336,7 @@ export default function Feed({ condition }: FeedProps) {
       )}
 
       {/* Bottom Timer */}
-      {timeLeft !== null && timeLeft > 0 && (
+      {timeLeft > 0 && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 glass px-4 py-1.5 rounded-full flex items-center gap-2 pointer-events-none transition-all duration-300">
           <Timer className="w-3.5 h-3.5 text-white/40" />
           <span className="text-[13px] font-medium tracking-tight" style={{ color: 'rgba(255,255,255,0.6)' }}>

@@ -1,34 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AnimatedBackground from './AnimatedBackground';
 
-interface AdminSettings {
-  activeFeed: 'A' | 'B';
-  feedName: string;
-  timerMinutes: number;
-  showConditionA?: boolean;
-  showConditionB?: boolean;
-}
+import type { AdminSettings } from './adminSettings';
 
-const STORAGE_KEY = 'feed-admin-settings';
 const PASSWORD = '120803';
 
-function getSettings(): AdminSettings {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return { activeFeed: 'A', feedName: '', timerMinutes: 5 };
+interface AdminProps {
+  settings: AdminSettings;
+  onSaveSettings: (settings: AdminSettings) => Promise<AdminSettings>;
 }
 
-function saveSettings(settings: AdminSettings) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-}
-
-export default function Admin() {
+export default function Admin({ settings, onSaveSettings }: AdminProps) {
   const [authenticated, setAuthenticated] = useState(false);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [settings, setSettings] = useState<AdminSettings>(getSettings());
+  const [isSaving, setIsSaving] = useState(false);
+  const [draftSettings, setDraftSettings] = useState<AdminSettings>(settings);
+
+  useEffect(() => {
+    setDraftSettings(settings);
+  }, [settings]);
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -40,8 +31,18 @@ export default function Admin() {
     }
   };
 
-  const handleSave = () => {
-    saveSettings(settings);
+  const handleSave = async () => {
+    setIsSaving(true);
+    setError('');
+
+    try {
+      const savedSettings = await onSaveSettings(draftSettings);
+      setDraftSettings(savedSettings);
+    } catch {
+      setError('Unable to save settings');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!authenticated) {
@@ -85,9 +86,9 @@ export default function Admin() {
           </label>
           <div className="flex gap-2">
             <button
-              onClick={() => setSettings(s => ({ ...s, activeFeed: 'A' }))}
+              onClick={() => setDraftSettings(s => ({ ...s, activeFeed: 'A' }))}
               className={`flex-1 py-3 rounded-xl font-medium transition-all duration-200 ${
-                settings.activeFeed === 'A'
+                draftSettings.activeFeed === 'A'
                   ? 'bg-white/15 text-white'
                   : 'glass glass-hover hover-scale text-white/60'
               }`}
@@ -95,9 +96,9 @@ export default function Admin() {
               Condition A
             </button>
             <button
-              onClick={() => setSettings(s => ({ ...s, activeFeed: 'B' }))}
+              onClick={() => setDraftSettings(s => ({ ...s, activeFeed: 'B' }))}
               className={`flex-1 py-3 rounded-xl font-medium transition-all duration-200 ${
-                settings.activeFeed === 'B'
+                draftSettings.activeFeed === 'B'
                   ? 'bg-white/15 text-white'
                   : 'glass glass-hover hover-scale text-white/60'
               }`}
@@ -114,8 +115,8 @@ export default function Admin() {
           </label>
           <input
             type="text"
-            value={settings.feedName}
-            onChange={(e) => setSettings(s => ({ ...s, feedName: e.target.value }))}
+            value={draftSettings.feedName}
+            onChange={(e) => setDraftSettings(s => ({ ...s, feedName: e.target.value }))}
             placeholder="e.g. Study 1 - Condition A"
             className="w-full py-3 px-4 rounded-xl glass text-white placeholder:text-white/30 outline-none"
             style={{ fontSize: 15 }}
@@ -131,8 +132,8 @@ export default function Admin() {
             type="number"
             min={1}
             max={60}
-            value={settings.timerMinutes}
-            onChange={(e) => setSettings(s => ({ ...s, timerMinutes: Math.max(1, parseInt(e.target.value) || 1) }))}
+            value={draftSettings.timerMinutes}
+            onChange={(e) => setDraftSettings(s => ({ ...s, timerMinutes: Math.max(1, parseInt(e.target.value) || 1) }))}
             className="w-full py-3 px-4 rounded-xl glass text-white outline-none"
             style={{ fontSize: 15 }}
           />
@@ -153,8 +154,8 @@ export default function Admin() {
               <input
                 type="checkbox"
                 className="w-5 h-5 accent-white rounded"
-                checked={settings.showConditionA !== false}
-                onChange={(e) => setSettings(s => ({ ...s, showConditionA: e.target.checked }))}
+                checked={draftSettings.showConditionA !== false}
+                onChange={(e) => setDraftSettings(s => ({ ...s, showConditionA: e.target.checked }))}
               />
             </label>
             <label className="flex items-center justify-between cursor-pointer">
@@ -162,8 +163,8 @@ export default function Admin() {
               <input
                 type="checkbox"
                 className="w-5 h-5 accent-white rounded"
-                checked={settings.showConditionB !== false}
-                onChange={(e) => setSettings(s => ({ ...s, showConditionB: e.target.checked }))}
+                checked={draftSettings.showConditionB !== false}
+                onChange={(e) => setDraftSettings(s => ({ ...s, showConditionB: e.target.checked }))}
               />
             </label>
           </div>
@@ -171,9 +172,11 @@ export default function Admin() {
 
         <button
           onClick={handleSave}
+          disabled={isSaving}
           className="w-full py-3 px-5 rounded-2xl glass glass-hover hover-scale text-white font-medium transition-all duration-200"
+          style={isSaving ? { opacity: 0.7, cursor: 'wait' } : undefined}
         >
-          Save Settings
+          {isSaving ? 'Saving...' : 'Save Settings'}
         </button>
 
         {/* Logout */}

@@ -1,0 +1,7 @@
+name = "simulatedfeed"
+pages_build_output_dir = "dist"
+compatibility_date = "2024-05-01"
+
+[[kv_namespaces]]
+binding = "SETTINGS_KV"
+id = "b53b8b6f3c1b48b598b63e8a4a3dc462" # Placeholder, user needs to change this

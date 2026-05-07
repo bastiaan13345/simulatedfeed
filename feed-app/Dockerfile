@@ -8,11 +8,13 @@ RUN npm ci
 COPY . .
 RUN npm run build
 
-FROM nginx:stable-alpine
+FROM node:lts-alpine
 
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/dist /usr/share/nginx/html
+WORKDIR /app
+
+COPY --from=build /app/dist ./dist
+COPY server.mjs ./server.mjs
 
 EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server.mjs"]

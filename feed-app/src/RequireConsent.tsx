@@ -9,7 +9,6 @@ export default function RequireConsent({ children, forceRequire = false }: { chi
   useEffect(() => {
     if (forceRequire) {
       localStorage.removeItem(CONSENT_KEY);
-      setConsented(false);
     }
   }, [forceRequire]);
 

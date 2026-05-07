@@ -10,7 +10,9 @@ From the repository root, build and run the production container with:
 docker compose up --build
 ```
 
-The app is served on http://localhost:8080. Browser `localStorage` still stores the admin and consent settings, so the Docker image stays stateless while the study state remains persistent in the browser.
+The app is served on http://localhost:8080. Admin settings are stored through the built-in settings API and persisted in the Docker volume mounted at `/data`, so every browser sees the same feed configuration. Consent still stays browser-local.
+
+If you run the Vite dev server directly, the app falls back to browser storage because the shared settings API is only available in the Docker runtime.
 
 Currently, two official plugins are available:
 

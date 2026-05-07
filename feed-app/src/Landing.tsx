@@ -2,28 +2,17 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronRight, Settings } from 'lucide-react';
 import AnimatedBackground from './AnimatedBackground';
 
-interface AdminSettings {
-  activeFeed: 'A' | 'B';
-  feedName: string;
-  timerMinutes: number;
-  showConditionA?: boolean;
-  showConditionB?: boolean;
+import type { AdminSettings } from './adminSettings';
+
+interface LandingProps {
+  settings: AdminSettings;
 }
 
-function getAdminSettings(): AdminSettings | null {
-  try {
-    const raw = localStorage.getItem('feed-admin-settings');
-    if (raw) return JSON.parse(raw);
-  } catch {}
-  return null;
-}
-
-export default function Landing() {
+export default function Landing({ settings }: LandingProps) {
   const navigate = useNavigate();
-  const settings = getAdminSettings();
 
   // If admin has configured settings, show single entry button
-  if (settings && settings.feedName) {
+  if (settings.feedName) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen text-white p-4 relative">
         <AnimatedBackground />
